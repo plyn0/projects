@@ -1,0 +1,1 @@
+supports only ASCII characters
