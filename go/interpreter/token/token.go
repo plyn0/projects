@@ -6,10 +6,13 @@ import (
 	"slices"
 )
 
-const EOFByte byte = byte(3)    // ETX (End of Text), see ASCII table
-var EOFString = string(EOFByte) // "\x03"
+type Literal string
+type TokenType string
 
-var symbolsMap = map[string]TokenType{
+var EOFByte byte = byte(3)        // ETX (End of Text), see ASCII table
+var EOFLiteral = Literal(EOFByte) // "\x03"
+
+var symbolsMap = map[Literal]TokenType{
 	// Operators
 	"=":  "ASSIGN",
 	"+":  "PLUS",
@@ -22,13 +25,13 @@ var symbolsMap = map[string]TokenType{
 	"==": "EQ",
 	"!=": "NOT_EQ",
 	// Delimiters
-	EOFString: "EOF",
-	",":       "COMMA",
-	";":       "SEMICOLON",
-	"(":       "LPAREN",
-	")":       "RPAREN",
-	"{":       "LBRACE",
-	"}":       "RBRACE",
+	// EOFLiteral: "EOF",
+	",": "COMMA",
+	";": "SEMICOLON",
+	"(": "LPAREN",
+	")": "RPAREN",
+	"{": "LBRACE",
+	"}": "RBRACE",
 }
 
 var SymbolsList = []byte{
@@ -54,15 +57,19 @@ func IsSymbolRec(char byte) bool {
 	return IsSymbolRecInner(char, 0, SymbolsList)
 }
 
-func GetSymbol(str string) (Token, error) {
+func GetSymbol(str Literal) (Token, error) {
 	if name, ok := symbolsMap[str]; ok {
 		return Token{Type: name, Literal: str}, nil
 	}
-	return Token{}, fmt.Errorf("symbolsMap[str]: %w is not in the map", errors.New(str))
+	return Token{}, fmt.Errorf("symbolsMap[str]: %w is not in the map", errors.New(string(str)))
 }
 
 func GetEOFToken() (Token, error) {
-	return GetSymbol(EOFString)
+	return GetSymbol(EOFLiteral)
+}
+
+func IsEOFToken(char byte) bool {
+	return char == '\x03'
 }
 
 // go-like enum
@@ -105,29 +112,27 @@ func GetEOFToken() (Token, error) {
 // arbitrary choice for the EOFByte
 // const EOFByte byte = byte(0) // corresponding string is "\x00"
 
-type TokenType string
-
 type Token struct {
+	Literal Literal
 	Type    TokenType
-	Literal string
 }
 
-// var keywords = map[string]TokenType{
-// 	"fn":  FUNCTION,
-// 	"let": LET,
-// 	// "true":   TRUE,
-// 	// "false":  FALSE,
-// 	// "if":     IF,
-// 	// "else":   ELSE,
-// 	// "return": RETURN,
-// }
+var keywords = map[Literal]TokenType{
+	"fn":  "FUNCTION",
+	"let": "LET",
+	// "true":   TRUE,
+	// "false":  FALSE,
+	// "if":     IF,
+	// "else":   ELSE,
+	// "return": RETURN,
+}
 
-// func LookupIdent(ident string) TokenType {
-// 	if tok, ok := keywords[ident]; ok {
-// 		return tok
-// 	}
-// 	return IDENT
-// }
+func LookupIdent(ident Literal) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return "IDENT"
+}
 
 // NOOOOOOOOOOOOOOOOO
 // type TokenMap map[TokenType]string

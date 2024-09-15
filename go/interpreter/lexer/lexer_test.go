@@ -1,23 +1,23 @@
 package lexer
 
 import (
+	"interpreter/token"
 	"log"
-	"monkey/token"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestNextToken(t *testing.T) {
-	input := "=+(){},;"
+func TestSnippet(t *testing.T) {
+	input := `let five = 5;
+let ten = 10;
 
-	// input := `let five = 5;
-	// let ten = 10;
+let add = fn(x, y) {
+	x + y;
+};
 
-	// let add = fn(x, y) {
-	//   x + y;
-	// };
-
-	// let result = add(five, ten);
-	// `
+let result = add(five, ten);
+`
 
 	// !-/*5;
 	// 5 < 10 > 5;
@@ -33,54 +33,45 @@ func TestNextToken(t *testing.T) {
 
 	tests := []struct {
 		expectedType    token.TokenType
-		expectedLiteral string
+		expectedLiteral token.Literal
 	}{
+		{"LET", "let"},
+		{"IDENT", "five"},
 		{"ASSIGN", "="},
-		{"PLUS", "+"},
+		{"INT", "5"},
+		{"SEMICOLON", ";"},
+		{"LET", "let"},
+		{"IDENT", "ten"},
+		{"ASSIGN", "="},
+		{"INT", "10"},
+		{"SEMICOLON", ";"},
+		{"LET", "let"},
+		{"IDENT", "add"},
+		{"ASSIGN", "="},
+		{"FUNCTION", "fn"},
 		{"LPAREN", "("},
+		{"IDENT", "x"},
+		{"COMMA", ","},
+		{"IDENT", "y"},
 		{"RPAREN", ")"},
 		{"LBRACE", "{"},
+		{"IDENT", "x"},
+		{"PLUS", "+"},
+		{"IDENT", "y"},
+		{"SEMICOLON", ";"},
 		{"RBRACE", "}"},
+		{"SEMICOLON", ";"},
+		{"LET", "let"},
+		{"IDENT", "result"},
+		{"ASSIGN", "="},
+		{"IDENT", "add"},
+		{"LPAREN", "("},
+		{"IDENT", "five"},
 		{"COMMA", ","},
+		{"IDENT", "ten"},
+		{"RPAREN", ")"},
 		{"SEMICOLON", ";"},
 		{"EOF", "\x03"},
-
-		// {token.LET, "let"},
-		// {token.IDENT, "five"},
-		// {token.ASSIGN, "="},
-		// {token.INT, "5"},
-		// {token.SEMICOLON, ";"},
-		// {token.LET, "let"},
-		// {token.IDENT, "ten"},
-		// {token.ASSIGN, "="},
-		// {token.INT, "10"},
-		// {token.SEMICOLON, ";"},
-		// {token.LET, "let"},
-		// {token.IDENT, "add"},
-		// {token.ASSIGN, "="},
-		// {token.FUNCTION, "fn"},
-		// {token.LPAREN, "("},
-		// {token.IDENT, "x"},
-		// {token.COMMA, ","},
-		// {token.IDENT, "y"},
-		// {token.RPAREN, ")"},
-		// {token.LBRACE, "{"},
-		// {token.IDENT, "x"},
-		// {token.PLUS, "+"},
-		// {token.IDENT, "y"},
-		// {token.SEMICOLON, ";"},
-		// {token.RBRACE, "}"},
-		// {token.SEMICOLON, ";"},
-		// {token.LET, "let"},
-		// {token.IDENT, "result"},
-		// {token.ASSIGN, "="},
-		// {token.IDENT, "add"},
-		// {token.LPAREN, "("},
-		// {token.IDENT, "five"},
-		// {token.COMMA, ","},
-		// {token.IDENT, "ten"},
-		// {token.RPAREN, ")"},
-		// {token.SEMICOLON, ";"},
 
 		// {token.BANG, "!"},
 		// {token.MINUS, "-"},
@@ -132,35 +123,20 @@ func TestNextToken(t *testing.T) {
 	// l := ReadChar(l1)
 
 	position := 0
-	for i, value := range tests {
+	for _, value := range tests {
+		position = SkipWhitespace(input, position)
 		tok, err := Do(input, position)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if tok.Literal == token.EOFString {
+		if tok.Literal == token.EOFLiteral {
 			return
 		}
-		position += 1
+		// position += 1
+		position += len(tok.Literal) // advance the position depending on the length of the token
 
-		// fmt.Println("===")
-		// fmt.Println(string(l.char), i, tok, l.position, 1)
-		// l = ReadChar(l)
-		// fmt.Println(string(l.char), i, tok, l.position, 2)
-		// // tok := l.Nexvalueoken()
-
-		// // update lexer and token
-		// l, tok = Nexvalueoken(l)
-		// fmt.Println(string(l.char), i, tok, l.position, 3)
-
-		if tok.Type != value.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, value.expectedType, tok.Type)
-		}
-
-		if tok.Literal != value.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, value.expectedLiteral, tok.Literal)
-		}
+		require.Equal(t, value.expectedType, tok.Type, "should be the same")
+		require.Equal(t, value.expectedLiteral, tok.Literal, "should be the same")
 	}
 }
 
@@ -169,7 +145,7 @@ func TestSymbols(t *testing.T) {
 
 	tests := []struct {
 		expectedType    token.TokenType
-		expectedLiteral string
+		expectedLiteral token.Literal
 	}{
 		{"ASSIGN", "="},
 		{"PLUS", "+"},
@@ -183,24 +159,33 @@ func TestSymbols(t *testing.T) {
 	}
 
 	position := 0
-	for i, value := range tests {
+	for _, value := range tests {
+		position = SkipWhitespace(input, position)
 		tok, err := Do(input, position)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if tok.Literal == token.EOFString {
+		if tok.Literal == token.EOFLiteral {
 			return
 		}
-		position += 1
+		// position += 1
+		position += len(tok.Literal) // advance the position depending on the length of the token
 
-		if tok.Type != value.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
-				i, value.expectedType, tok.Type)
-		}
+		require.Equal(t, value.expectedType, tok.Type, "should be the same")
+		require.Equal(t, value.expectedLiteral, tok.Literal, "should be the same")
+		// if tok.Type != value.expectedType {
+		// 	t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+		// 		i, value.expectedType, tok.Type)
+		// }
 
-		if tok.Literal != value.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
-				i, value.expectedLiteral, tok.Literal)
-		}
+		// if tok.Literal != value.expectedLiteral {
+		// 	t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+		// 		i, value.expectedLiteral, tok.Literal)
+		// }
 	}
 }
+
+// func TestComputePriceWithVAT(t *testing.T) {
+// 	require.Equal(t, computePriceWithVAT(12.4567), 13.14)
+// 	require.Equal(t, computePriceWithVAT(1), 1.06) // integer input
+// }

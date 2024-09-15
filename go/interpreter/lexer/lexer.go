@@ -1,28 +1,88 @@
 package lexer
 
 import (
-	"monkey/token"
+	"fmt"
+	"interpreter/token"
 )
 
-type Lexer struct {
-	input        string
-	char         byte // current char under examination
-	position     int  // current position in input (points to current char)
-	nextPosition int  // current reading position in input (after current char)
-}
+// type Lexer struct {
+// 	input        string
+// 	char         byte // current char under examination
+// 	position     int  // current position in input (points to current char)
+// 	nextPosition int  // current reading position in input (after current char)
+// }
 
 func Do(input string, position int) (token.Token, error) {
-	if position+1 > len(input) {
-		return token.Token{Type: "EOF", Literal: token.EOFString}, nil
+	if position+1 > len(input) { // in the entire program, the EOF is created here
+		return token.Token{Literal: token.EOFLiteral, Type: "EOF"}, nil
 	}
 	char := input[position]
 	switch {
 	case token.IsSymbol(char):
-		return token.GetSymbol(string(char))
+		return token.GetSymbol(token.Literal(char))
+	case IsLetter(char):
+		ident := GetIdentifier(input, position)
+		tokenType := token.LookupIdent(ident)
+		return token.Token{Literal: ident, Type: tokenType}, nil
+	// case token.IsEOFToken(char):
+	// 	return token.GetEOFToken()
 	default:
-		return token.GetEOFToken()
+		return token.Token{}, fmt.Errorf("switch on token: char '%s' is not recognized", string(char))
 	}
 }
+
+func IsLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func GetIdentifier(input string, position int) token.Literal {
+	result := []byte{input[position]} // the first character was identified as a letter
+	for {
+		position += 1
+		if position > len(input) {
+			return token.Literal(result)
+		}
+		nextChar := input[position]
+		if IsLetter(nextChar) {
+			result = append(result, nextChar)
+		} else {
+			return token.Literal(result)
+		}
+	}
+}
+
+func SkipWhitespace(input string, position int) int {
+	for {
+		char := input[position]
+		if char == ' ' || char == '\t' || char == '\n' || char == '\r' {
+			position += 1
+		} else {
+			return position
+		}
+	}
+}
+
+// func (l *Lexer) skipWhitespace() {
+// 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
+// 		l.readChar()
+// 	}
+// }
+
+// func readIdentifier(l Lexer) (Lexer, string) {
+// 	result := []byte{l.char} // the first character was identified as a letter
+// 	nextPosition := l.position + 1
+// 	for {
+// 		nextChar := l.input[nextPosition]
+// 		if isLetter(nextChar) {
+// 			result = append(result, nextChar)
+// 			nextPosition += 1
+// 			l.position += 1
+// 		} else {
+// 			break
+// 		}
+// 	}
+// 	return l, string(result)
+// }
 
 // func NextToken(l Lexer) (Lexer, token.Token) {
 // 	// l := ReadChar(l1)
@@ -106,9 +166,9 @@ func Do(input string, position int) (token.Token, error) {
 // 	// return tok
 // }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
-	return token.Token{Type: tokenType, Literal: string(ch)}
-}
+// func newToken(tokenType token.TokenType, ch byte) token.Token {
+// 	return token.Token{Type: tokenType, Literal: string(ch)}
+// }
 
 // func (l *Lexer) readChar() {
 // 	if l.nextPosition >= len(l.input) {
@@ -120,27 +180,21 @@ func newToken(tokenType token.TokenType, ch byte) token.Token {
 // 	l.nextPosition += 1
 // }
 
-func ReadChar(lexer Lexer) Lexer {
-	if lexer.nextPosition >= len(lexer.input) {
-		return Lexer{
-			input: lexer.input,
-			char:  token.EOFByte,
-			// position:     0,
-			// nextPosition: 0,
-		}
-	} else {
-		return Lexer{
-			input:        lexer.input,
-			char:         lexer.input[lexer.nextPosition],
-			position:     lexer.nextPosition,
-			nextPosition: lexer.nextPosition + 1,
-		}
-	}
-}
-
-// func (l *Lexer) skipWhitespace() {
-// 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
-// 		l.readChar()
+// func ReadChar(lexer Lexer) Lexer {
+// 	if lexer.nextPosition >= len(lexer.input) {
+// 		return Lexer{
+// 			input: lexer.input,
+// 			char:  token.EOFByte,
+// 			// position:     0,
+// 			// nextPosition: 0,
+// 		}
+// 	} else {
+// 		return Lexer{
+// 			input:        lexer.input,
+// 			char:         lexer.input[lexer.nextPosition],
+// 			position:     lexer.nextPosition,
+// 			nextPosition: lexer.nextPosition + 1,
+// 		}
 // 	}
 // }
 
@@ -152,22 +206,6 @@ func ReadChar(lexer Lexer) Lexer {
 // 	}
 // }
 
-func readIdentifier(l Lexer) (Lexer, string) {
-	result := []byte{l.char} // the first character was identified as a letter
-	nextPosition := l.position + 1
-	for {
-		nextChar := l.input[nextPosition]
-		if isLetter(nextChar) {
-			result = append(result, nextChar)
-			nextPosition += 1
-			l.position += 1
-		} else {
-			break
-		}
-	}
-	return l, string(result)
-}
-
 // func (l *Lexer) readNumber() string {
 // 	position := l.position
 // 	for isDigit(l.char) {
@@ -175,10 +213,6 @@ func readIdentifier(l Lexer) (Lexer, string) {
 // 	}
 // 	return l.input[position:l.position]
 // }
-
-func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
-}
 
 // func isDigit(ch byte) bool {
 // 	return '0' <= ch && ch <= '9'
