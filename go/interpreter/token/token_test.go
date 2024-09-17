@@ -2,6 +2,8 @@ package token
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 var tests = []struct {
@@ -17,22 +19,16 @@ var tests = []struct {
 }
 
 func TestIsSymbol(t *testing.T) {
-	for i, value := range tests {
+	for _, value := range tests {
 		result := IsSymbol(value.char)
-		if result != value.expected {
-			t.Fatalf("tests[%d] - result wrong. expected=%t, got=%t",
-				i, value.expected, result)
-		}
+		require.Equal(t, value.expected, result)
 	}
 }
 
 // same test for the recursive version
 func TestIsSymbolRec(t *testing.T) {
-	for i, value := range tests {
+	for _, value := range tests {
 		result := IsSymbolRec(value.char)
-		if result != value.expected {
-			t.Fatalf("tests[%d] - result wrong. expected=%t, got=%t",
-				i, value.expected, result)
-		}
+		require.Equal(t, value.expected, result)
 	}
 }

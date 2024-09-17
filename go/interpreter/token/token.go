@@ -12,16 +12,16 @@ type TokenType string
 var EOFByte byte = byte(3)        // ETX (End of Text), see ASCII table
 var EOFLiteral = Literal(EOFByte) // "\x03"
 
-var symbolsMap = map[Literal]TokenType{
+var symbolsEnum = map[Literal]TokenType{
 	// Operators
 	"=":  "ASSIGN",
 	"+":  "PLUS",
 	"-":  "MINUS",
-	"!":  "BANG",
 	"*":  "ASTERISK",
 	"/":  "SLASH",
 	"<":  "LT",
 	">":  "GT",
+	"!":  "BANG",
 	"==": "EQ",
 	"!=": "NOT_EQ",
 	// Delimiters
@@ -36,6 +36,13 @@ var symbolsMap = map[Literal]TokenType{
 
 var SymbolsList = []byte{
 	'=', '+', '-', '*', '/', '<', '>', '!', ',', ';', '(', ')', '{', '}',
+}
+
+func LookupSymbol(ident Literal) (TokenType, error) {
+	if tok, ok := symbolsEnum[ident]; ok {
+		return tok, nil
+	}
+	return "", fmt.Errorf("symbolsEnum[ident]: '%s' is not in the enum", string(ident))
 }
 
 func IsSymbol(char byte) bool {
@@ -58,10 +65,10 @@ func IsSymbolRec(char byte) bool {
 }
 
 func GetSymbol(str Literal) (Token, error) {
-	if name, ok := symbolsMap[str]; ok {
+	if name, ok := symbolsEnum[str]; ok {
 		return Token{Type: name, Literal: str}, nil
 	}
-	return Token{}, fmt.Errorf("symbolsMap[str]: %w is not in the map", errors.New(string(str)))
+	return Token{}, fmt.Errorf("symbolsEnum[str]: %w is not in the map", errors.New(string(str)))
 }
 
 func GetEOFToken() (Token, error) {
@@ -99,7 +106,7 @@ func IsEOFToken(char byte) bool {
 // 	RPAREN    = ")"
 // 	LBRACE    = "{"
 // 	RBRACE    = "}"
-// 	// Keywords
+// 	// KeywordsEnum
 // 	FUNCTION = "FUNCTION"
 // 	LET      = "LET"
 // 	TRUE     = "TRUE"
@@ -117,18 +124,18 @@ type Token struct {
 	Type    TokenType
 }
 
-var keywords = map[Literal]TokenType{
-	"fn":  "FUNCTION",
-	"let": "LET",
-	// "true":   TRUE,
-	// "false":  FALSE,
-	// "if":     IF,
-	// "else":   ELSE,
-	// "return": RETURN,
+var keywordsEnum = map[Literal]TokenType{
+	"fn":     "FUNCTION",
+	"let":    "LET",
+	"true":   "TRUE",
+	"false":  "FALSE",
+	"if":     "IF",
+	"else":   "ELSE",
+	"return": "RETURN",
 }
 
 func LookupIdent(ident Literal) TokenType {
-	if tok, ok := keywords[ident]; ok {
+	if tok, ok := keywordsEnum[ident]; ok {
 		return tok
 	}
 	return "IDENT"
@@ -162,7 +169,7 @@ func LookupIdent(ident Literal) TokenType {
 // 		"RPAREN":    ")",
 // 		"LBRACE":    "{",
 // 		"RBRACE":    "}",
-// 		// Keywords
+// 		// KeywordsEnum
 // 		"FUNCTION": "FUNCTION",
 // 		"LET":      "LET",
 // 		"TRUE":     "TRUE",

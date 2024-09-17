@@ -6,13 +6,14 @@ import (
 )
 
 func Do(input string, position int) (token.Token, error) {
+	fmt.Println(position, len(input), "==")
 	if position >= len(input) { // in the entire program, the EOF is created here
 		return token.Token{Literal: token.EOFLiteral, Type: "EOF"}, nil
 	}
 	char := input[position]
 	switch {
 	case token.IsSymbol(char):
-		return token.GetSymbol(token.Literal(char))
+		return GetSymbol2(input, position)
 	case IsLetter(char):
 		ident := GetIdentifier(input, position)
 		tokenType := token.LookupIdent(ident)
@@ -31,6 +32,18 @@ func IsDigit(ch byte) bool {
 
 func IsLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func GetSymbol2(input string, position int) (token.Token, error) {
+	char := input[position]
+	switch {
+	case char == '=' && peekChar(input, position) == '=':
+		return token.GetSymbol("==")
+	case char == '!' && peekChar(input, position) == '=':
+		return token.GetSymbol("!=")
+	default:
+		return token.GetSymbol(token.Literal(char))
+	}
 }
 
 func GetNumber(input string, position int) token.Literal {
@@ -58,16 +71,26 @@ func getTokenLiteral(input string, position int, predicate func(byte) bool) toke
 }
 
 func SkipWhitespace(input string, position int) int {
-	if position >= len(input) { // do nothing if end of input is reached
-		return position
-	}
 	for {
+		// do nothing if end of input is reached
+		// this check is redone at each iteration (for safe access at file ending)
+		if position >= len(input) {
+			return position
+		}
 		char := input[position]
 		if char == ' ' || char == '\t' || char == '\n' || char == '\r' {
 			position += 1
 		} else {
 			return position
 		}
+	}
+}
+
+func peekChar(input string, position int) byte {
+	if position >= len(input) {
+		return '\x00'
+	} else {
+		return input[position+1]
 	}
 }
 
