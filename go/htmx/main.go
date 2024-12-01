@@ -30,12 +30,12 @@ func main() {
 // setupRouter creates and returns a router with the associated routes.
 func setupStaticFiles(router *gin.Engine) {
 	// load all the templates (must be called before LoadHTMLFiles)
-	router.LoadHTMLGlob("assets/*")
+	// router.LoadHTMLGlob("assets/*")
 	// load the starting point of the app
-	// router.LoadHTMLFiles("public/index.html", "templates/info.html")
+	router.LoadHTMLFiles("public/index.html", "templates/info.html")
 	fmt.Println(router)
 	// to be imported by the HTML code, static files (js, css) must be served
-	router.Static("/assets", "./assets")
+	router.Static("/public", "./public")
 }
 
 func setupRoutes(router *gin.Engine) {
@@ -58,5 +58,9 @@ func GetInfo(c *gin.Context) {
 }
 
 func PostNote(c *gin.Context) {
-
+	// hello("response").Render(c, c.Writer)
+	hello("response").Render(c.Request.Context(), c.Writer)
+	// c.HTML(http.StatusOK, "info.html", gin.H{
+	// 	"title": "Posts",
+	// })
 }
