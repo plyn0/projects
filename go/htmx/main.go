@@ -2,6 +2,7 @@ package main
 
 import (
 	"api-htmx/route"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -29,16 +30,18 @@ func main() {
 // setupRouter creates and returns a router with the associated routes.
 func setupStaticFiles(router *gin.Engine) {
 	// load all the templates (must be called before LoadHTMLFiles)
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("assets/*")
 	// load the starting point of the app
-	router.LoadHTMLFiles("public/index.html")
+	// router.LoadHTMLFiles("public/index.html", "templates/info.html")
+	fmt.Println(router)
 	// to be imported by the HTML code, static files (js, css) must be served
-	router.Static("/public", "./public")
+	router.Static("/assets", "./assets")
 }
 
 func setupRoutes(router *gin.Engine) {
 	router.GET("/", GetPage)
 	router.GET("/info", GetInfo)
+	router.POST("/note", PostNote)
 	router.GET("/api/v1/product", route.GetProducts)
 }
 
@@ -52,4 +55,8 @@ func GetInfo(c *gin.Context) {
 	c.HTML(http.StatusOK, "info.html", gin.H{
 		"title": "Posts",
 	})
+}
+
+func PostNote(c *gin.Context) {
+
 }

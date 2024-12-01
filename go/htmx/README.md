@@ -4,6 +4,7 @@ https://go.dev/doc/install
 # setup VSCode
 To get type linting, auto-format, auto-imports, etc:\
 https://marketplace.visualstudio.com/items?itemName=golang.Go
+Add the templ extension to lint template files.
 
 # how the project was started
 - `go mod init poc-go` creates the `go.mod` file (necessary to have dependencies).
