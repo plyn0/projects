@@ -1,0 +1,17 @@
+package template
+
+templ RenderList(list []string){
+	<ul id="response-list">
+	for _, item := range list {
+		<li>{ item }</li>
+	}
+	</ul>
+}
+
+templ RenderList2(list []string){
+	<ul>
+	for _, item := range list {
+		<li>{ item }</li>
+	}
+	</ul>
+}

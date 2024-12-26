@@ -2,10 +2,10 @@ package main
 
 import (
 	"api-htmx/route"
+	"api-htmx/template"
 	"fmt"
 	"log"
 	"log/slog"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +41,7 @@ func setupStaticFiles(router *gin.Engine) {
 	// router.LoadHTMLGlob("assets/*")
 	// load the starting point of the app
 	// router.LoadHTMLFiles("public/index.html", "templates/info.html")
-	router.LoadHTMLFiles("public/index.html")
+	// router.LoadHTMLFiles("public/index.html")
 	fmt.Println(router)
 	// to be imported by the HTML code, static files (js, css) must be served
 	router.Static("/public", "./public")
@@ -55,9 +55,10 @@ func setupRoutes(router *gin.Engine) {
 }
 
 func GetPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "Posts",
-	})
+	template.Root().Render(c.Request.Context(), c.Writer)
+	// c.HTML(http.StatusOK, "index.html", gin.H{
+	// 	"title": "Posts",
+	// })
 }
 
 func GetInfo(c *gin.Context) {
@@ -67,16 +68,16 @@ func GetInfo(c *gin.Context) {
 	// c.HTML(http.StatusOK, "templates/info.templ", gin.H{
 	// 	"title": "Posts",
 	// })
-	renderList([]string{"el1", "el2"}).Render(c.Request.Context(), c.Writer)
+	template.RenderList2([]string{"el1", "el2"}).Render(c.Request.Context(), c.Writer)
 	// renderList([]string{"aa"})
 }
 
 func PostNote(c *gin.Context) {
 	// hello("response").Render(c, c.Writer)
 	note := c.PostForm("note")
-	hello(note).Render(c.Request.Context(), c.Writer)
+	template.Hello(note).Render(c.Request.Context(), c.Writer)
 	list = append(list, note)
-	renderList(list).Render(c.Request.Context(), c.Writer)
+	template.RenderList(list).Render(c.Request.Context(), c.Writer)
 	// c.HTML(http.StatusOK, "info.html", gin.H{
 	// 	"title": "Posts",
 	// })

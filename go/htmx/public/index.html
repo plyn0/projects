@@ -8,7 +8,6 @@
     <link href="public/style.css" rel="stylesheet" />
 </head>
 <body>
-
     <section class="section">
         <h1>My Portfolio</h1>
     </section>
@@ -19,15 +18,15 @@
         <h2>Contact me</h2>
     </section>
     <main>
-        <button hx-get="/info" hx-swap="outerHTML">Swap</button>
-        <button hx-get="/info" hx-target="main" hx-swap="beforeend">Target main tag and append</button>
+        <button hx-get="/info" hx-swap="outerHTML">Swap the element itself</button>
+        <button hx-get="/info" hx-target="main" hx-swap="beforeend">Target another tag and append</button>
         <button hx-get="/info" hx-trigger="mouseenter[ctrlKey],click" hx-target="main" hx-swap="beforeend">Hover with Ctrl, or click</button>
-        <form hx-post="/note" hx-target="div">
+        <form hx-post="/note" hx-target="#response-list" hx-swap="outerHTML">
             <p>The input should have a "name" attribute to be extracted on the backend</p>
             <input type="text" id="note" name="note">
             <button>Save Note</button>
         </form>
-        <div></div>
+        <ul id="response-list"></ul>
     </main>
 
 </body>
