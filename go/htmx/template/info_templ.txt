@@ -1,8 +1,9 @@
+<div>This an info div</div>
+<div>Error somewhere</div>
 <ul id=\"response-list\">
-<li>
-</li>
-</ul>
-<ul>
-<li>
-</li>
+<li id=\"
+\"><p>
+</p><button hx-delete=\"
+\" hx-target=\"
+\" hx-swap=\"outerHTML\">Remove</button></li>
 </ul>

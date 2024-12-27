@@ -1,17 +1,39 @@
 package template
 
-templ RenderList(list []string){
+import (
+	"api-htmx/domain"
+)
+
+/*
+A valid query selector cannot start with a number in the string
+Since that can happen with uuid, we prefix something arbitrary 
+ */
+func getQuerySelector(id string) string {
+	return "uuid:" + id
+}
+
+templ Info() {
+	<div>This an info div</div>
+}
+
+templ Error() {
+	<div>Error somewhere</div>
+}
+
+templ RenderList(list []domain.Writer) {
 	<ul id="response-list">
 	for _, item := range list {
-		<li>{ item }</li>
+		<li id={getQuerySelector(item.Id)}>
+			<p>{ item.Name }</p>
+			<button
+				hx-delete={"/items/" + item.Id}
+				hx-target={getQuerySelector(item.Id)}
+				hx-swap="outerHTML"
+			>
+				Remove
+			</button>	
+		</li>
 	}
 	</ul>
 }
 
-templ RenderList2(list []string){
-	<ul>
-	for _, item := range list {
-		<li>{ item }</li>
-	}
-	</ul>
-}

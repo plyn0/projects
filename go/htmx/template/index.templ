@@ -1,19 +1,13 @@
 package template
 
-// func getList(list []string, el string) []string {
-// 	list2 := append(list, el)
-// 	return list2
-// }
+import "api-htmx/domain"
 
 templ Hello(name string) {
 	<div>Hello, { name } and what did</div>
 }
 
-// templ hello3() {
-// 	<div>aaa</div>
-// }
-
-templ Root() {
+templ Root(writers []domain.Writer) {
+	<!DOCTYPE html>
 	<html lang="en">
 	<head>
 		<meta charset="UTF-8">
@@ -34,14 +28,14 @@ templ Root() {
 		</section>
 		<main>
 			<button hx-get="/info" hx-swap="outerHTML">Swap the element itself</button>
-			<button hx-get="/info" hx-target="main" hx-swap="beforeend">Target another tag and append</button>
+			<button hx-get="/info" hx-target="main" hx-swap="beforeend">Target main tag and append</button>
 			<button hx-get="/info" hx-trigger="mouseenter[ctrlKey],click" hx-target="main" hx-swap="beforeend">Hover with Ctrl, or click</button>
 			<form hx-post="/note" hx-target="#response-list" hx-swap="outerHTML">
 				<p>The input should have a "name" attribute to be extracted on the backend</p>
 				<input type="text" id="note" name="note">
 				<button>Save Note</button>
 			</form>
-			<ul id="response-list"></ul>
+			@RenderList(writers)
 		</main>
 
 	</body>

@@ -1,22 +1,17 @@
 package main
 
 import (
+	"api-htmx/domain"
 	"api-htmx/route"
 	"api-htmx/template"
-	"fmt"
 	"log"
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-// var list []string = {"aa"}
-var list = []string{"hugo"}
-
-// func getList(list []string, el string) []string {
-// 	list2 := append(list, el)
-// 	return list2
-// }
+var writers = []domain.Writer{{Id: uuid.NewString(), Name: "hugo"}}
 
 func init() {
 	slog.Info("here is a structured log")
@@ -37,14 +32,8 @@ func main() {
 
 // setupRouter creates and returns a router with the associated routes.
 func setupStaticFiles(router *gin.Engine) {
-	// load all the templates (must be called before LoadHTMLFiles)
-	// router.LoadHTMLGlob("assets/*")
-	// load the starting point of the app
-	// router.LoadHTMLFiles("public/index.html", "templates/info.html")
-	// router.LoadHTMLFiles("public/index.html")
-	fmt.Println(router)
 	// to be imported by the HTML code, static files (js, css) must be served
-	router.Static("/public", "./public")
+	// router.Static("/public", "./public")
 }
 
 func setupRoutes(router *gin.Engine) {
@@ -52,33 +41,41 @@ func setupRoutes(router *gin.Engine) {
 	router.GET("/info", GetInfo)
 	router.POST("/note", PostNote)
 	router.GET("/api/v1/product", route.GetProducts)
+	router.DELETE("/items/:id", DeleteItem)
+}
+
+func DeleteItem(c *gin.Context) {
+	idToDelete := c.Param("id")
+	// if err != nil {
+	// 	template.Error().Render(c.Request.Context(), c.Writer)
+	// }
+	newWriters := []domain.Writer{}
+	for _, item := range writers {
+		if item.Id != idToDelete {
+			newWriters = append(newWriters, item)
+		}
+	}
+	writers = newWriters
 }
 
 func GetPage(c *gin.Context) {
-	template.Root().Render(c.Request.Context(), c.Writer)
-	// c.HTML(http.StatusOK, "index.html", gin.H{
-	// 	"title": "Posts",
-	// })
+	template.Root(writers).Render(c.Request.Context(), c.Writer)
 }
 
 func GetInfo(c *gin.Context) {
-	// c.HTML(http.StatusOK, "info.html", gin.H{
-	// 	"title": "Posts",
-	// })
-	// c.HTML(http.StatusOK, "templates/info.templ", gin.H{
-	// 	"title": "Posts",
-	// })
-	template.RenderList2([]string{"el1", "el2"}).Render(c.Request.Context(), c.Writer)
-	// renderList([]string{"aa"})
+	template.Info().Render(c.Request.Context(), c.Writer)
 }
 
+/*
+More efficient: return the HTML for the single item that was added to the list, an used hx-swap: beforeend
+*/
 func PostNote(c *gin.Context) {
-	// hello("response").Render(c, c.Writer)
 	note := c.PostForm("note")
-	template.Hello(note).Render(c.Request.Context(), c.Writer)
-	list = append(list, note)
-	template.RenderList(list).Render(c.Request.Context(), c.Writer)
-	// c.HTML(http.StatusOK, "info.html", gin.H{
-	// 	"title": "Posts",
-	// })
+	item := domain.Writer{
+		Id:   uuid.NewString(),
+		Name: note,
+	}
+	// template.Hello(note).Render(c.Request.Context(), c.Writer)
+	writers = append(writers, item)
+	template.RenderList(writers).Render(c.Request.Context(), c.Writer)
 }

@@ -29,3 +29,6 @@ Trigger the request once the element is scrolled into the viewport:
 </div>
 ```
 https://htmx.org/docs/#triggers modifiers & variations in the official docs.
+
+# hx-select
+When we wish to only use a fragment of the html page received, we can target that fragment with `hx-select`. Then the other directives (like `hx-target`) will only use that HTML to do their action.
