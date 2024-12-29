@@ -8,16 +8,15 @@ package template
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"api-htmx/domain"
-)
+import "api-htmx/domain"
 
 /*
 A valid query selector cannot start with a number in the string
 Since that can happen with uuid, we prefix something arbitrary
+(do not use ":" or other reserved characters)
 */
 func getQuerySelector(id string) string {
-	return "uuid:" + id
+	return "uuid-" + id
 }
 
 func Info() templ.Component {
@@ -41,7 +40,7 @@ func Info() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>This an info div</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -70,13 +69,32 @@ func Error() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>Error somewhere</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return templ_7745c5c3_Err
 	})
 }
+
+// /* RenderList: hx-swap is applied to all <li> thanks to inheritance */
+// templ RenderList(list []domain.Writer) {
+// 	<ul id="response-list" hx-swap="outerHTML">
+// 		for _, item := range list {
+// 			<li id={getQuerySelector(item.Id) }>
+// 				<p>{ item.Name }</p>
+// 				<button
+// 					hx-delete={ "/items/" + item.Id }
+// 					hx-target={"#" + getQuerySelector(item.Id) }
+// 				>
+// 					Remove
+// 				</button>
+// 			</li>
+// 		}
+// 	</ul>
+// }
+
+/* RenderList: hx-swap is applied to all <li> thanks to inheritance */
 
 func RenderList(list []domain.Writer) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -99,69 +117,43 @@ func RenderList(list []domain.Writer) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<ul id=\"response-list\" hx-swap=\"outerHTML\" hx-confirm=\"Are you sure?\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, item := range list {
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(getQuerySelector(item.Id))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 26, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 44, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p><button hx-delete=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("/items/" + item.Id)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 27, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 46, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("/items/" + item.Id)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 29, Col: 34}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 7)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(getQuerySelector(item.Id))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/info.templ`, Line: 30, Col: 40}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 8)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"closest li\">Remove</button></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 9)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

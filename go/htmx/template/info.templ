@@ -1,15 +1,14 @@
 package template
 
-import (
-	"api-htmx/domain"
-)
+import "api-htmx/domain"
 
 /*
 A valid query selector cannot start with a number in the string
-Since that can happen with uuid, we prefix something arbitrary 
- */
+Since that can happen with uuid, we prefix something arbitrary
+(do not use ":" or other reserved characters)
+*/
 func getQuerySelector(id string) string {
-	return "uuid:" + id
+	return "uuid-" + id
 }
 
 templ Info() {
@@ -20,20 +19,36 @@ templ Error() {
 	<div>Error somewhere</div>
 }
 
+// /* RenderList: hx-swap is applied to all <li> thanks to inheritance */
+// templ RenderList(list []domain.Writer) {
+// 	<ul id="response-list" hx-swap="outerHTML">
+// 		for _, item := range list {
+// 			<li id={getQuerySelector(item.Id) }>
+// 				<p>{ item.Name }</p>
+// 				<button
+// 					hx-delete={ "/items/" + item.Id }
+// 					hx-target={"#" + getQuerySelector(item.Id) }
+// 				>
+// 					Remove
+// 				</button>
+// 			</li>
+// 		}
+// 	</ul>
+// }
+
+/* RenderList: hx-swap is applied to all <li> thanks to inheritance */
 templ RenderList(list []domain.Writer) {
-	<ul id="response-list">
-	for _, item := range list {
-		<li id={getQuerySelector(item.Id)}>
-			<p>{ item.Name }</p>
-			<button
-				hx-delete={"/items/" + item.Id}
-				hx-target={getQuerySelector(item.Id)}
-				hx-swap="outerHTML"
-			>
-				Remove
-			</button>	
-		</li>
-	}
+	<ul id="response-list" hx-swap="outerHTML" hx-confirm="Are you sure?">
+		for _, item := range list {
+			<li>
+				<p>{ item.Name }</p>
+				<button
+					hx-delete={ "/items/" + item.Id }
+					hx-target="closest li"
+				>
+					Remove
+				</button>
+			</li>
+		}
 	</ul>
 }
-

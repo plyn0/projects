@@ -33,7 +33,7 @@ func main() {
 // setupRouter creates and returns a router with the associated routes.
 func setupStaticFiles(router *gin.Engine) {
 	// to be imported by the HTML code, static files (js, css) must be served
-	// router.Static("/public", "./public")
+	router.Static("/public", "./public")
 }
 
 func setupRoutes(router *gin.Engine) {

@@ -31,7 +31,7 @@ func Hello(name string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>Hello, ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -44,7 +44,7 @@ func Hello(name string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" and what did</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -73,7 +73,7 @@ func Root(writers []domain.Writer) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>HTMX</title><script src=\"public/htmx.js\" defer></script><script src=\"public/main.js\" defer></script><link href=\"public/style.css\" rel=\"stylesheet\"></head><body><section class=\"section\"><h1>My Portfolio</h1></section><main><button hx-get=\"/info\" hx-swap=\"outerHTML\">Swap the element itself</button> <button hx-get=\"/info\" hx-target=\"main\" hx-swap=\"beforeend\">Target main tag and append</button> <button hx-get=\"/info\" hx-trigger=\"mouseenter[ctrlKey],click\" hx-target=\"main\" hx-swap=\"beforeend\">Hover with Ctrl, or click</button><form hx-post=\"/note\" hx-target=\"#response-list\" hx-swap=\"outerHTML\" hx-on:submit=\"emptyForm(document, event)\" hx-disabled-elt=\"form button\"><p>The input should have a \"name\" attribute to be extracted on the backend</p><input type=\"text\" id=\"note\" name=\"note\"> <button>Save Note</button></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -81,7 +81,7 @@ func Root(writers []domain.Writer) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
